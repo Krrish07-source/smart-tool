@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Smart Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 25px; color: #38bdf8; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Dashboard Grid Layout */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1300px; margin: 0 auto; }
+        .card { background: #1e293b; border-radius: 15px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 1px solid #334155; }
+        .card h2 { color: #f43f5e; margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+
+        /* Widget Styles */
+        input, button, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: none; font-size: 1rem; }
+        input, textarea { background: #0f172a; color: white; border: 1px solid #475569; }
+        button { background: #0ea5e9; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #0284c7; }
+
+        /* Clock & Health */
+        #clock { font-size: 2.5rem; font-weight: bold; text-align: center; color: #10b981; margin: 10px 0; }
+        .health-btn { background: #e11d48; }
+
+        /* To Do List */
+        ul { list-style: none; margin-top: 10px; max-height: 150px; overflow-y: auto; }
+        li { background: #334155; padding: 8px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .del-btn { width: auto; padding: 2px 8px; background: #ef4444; font-size: 0.8rem; }
+
+        /* Canvas Drawing */
+        canvas { background: white; border-radius: 8px; width: 100%; height: 150px; cursor: crosshair; }
+
+        /* Timer */
+        #timer-display { font-size: 2.5rem; text-align: center; color: #f59e0b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>⚡ Smart Family Dashboard ⚡</h1>
+
+    <div class="grid">
+        
+        <div class="card">
+            <h2>⏰ Time & Health Alarms</h2>
+            <div id="clock">00:00:00</div>
+            <button class="health-btn" onclick="alert('💦 Paani Peene Ka Waqt Ho Gaya Dada Ji!')">💧 Drink Water Reminder</button>
+            <button class="health-btn" style="background:#8b5cf6;" onclick="alert('💊 Dawai Lene Ka Waqt Ho Gaya Hai!')">💊 Take Medicine Alert</button>
+        </div>
+
+        <div class="card">
+            <h2>📝 Instant Note Pad</h2>
+            <textarea id="notepad" rows="5" placeholder="Kuch bhi zaroori cheez yahan likhein (Auto-saves)..." oninput="saveNote()"></textarea>
+        </div>
+
+        <div class="card">
+            <h2>✅ Daily Tasks (To-Do)</h2>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="todo-input" placeholder="Naya kaam add karein...">
+                <button style="width: auto;" onclick="addTodo()">Add</button>
+            </div>
+            <ul id="todo-list"></ul>
+        </div>
+
+        <div class="card">
+            <h2>⏱️ Focus Study Timer (25 Mins)</h2>
+            <div id="timer-display">25:00</div>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="startTimer()">Start</button>
+                <button style="background:#64748b;" onclick="resetTimer()">Reset</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧠 Kids Math Challenge</h2>
+            <div id="quiz-question" style="font-size: 1.2rem; margin-bottom: 10px; text-align: center;">Loading...</div>
+            <input type="number" id="quiz-answer" placeholder="Apna jawab likho">
+            <button onclick="checkQuiz()">Submit Answer</button>
+            <div id="quiz-score" style="margin-top: 5px; text-align: center; color: #10b981;">Score: 0</div>
+        </div>
+
+        <div class="card">
+            <h2>🎨 Kids Magic Slate / Canvas</h2>
+            <canvas id="paintCanvas"></canvas>
+            <button style="background:#475569; margin-top: 5px;" onclick="clearCanvas()">Clear Board</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. DIGITAL CLOCK
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }, 1000);
+
+        // 2. AUTO-SAVING NOTEPAD
+        document.getElementById('notepad').value = localStorage.getItem('smart_note') || '';
+        function saveNote() {
+            localStorage.setItem('smart_note', document.getElementById('notepad').value);
+        }
+
+        // 3. TO-DO LIST LOGIC
+        let todos = JSON.parse(localStorage.getItem('smart_todos')) || [];
+        function renderTodos() {
+            const ul = document.getElementById('todo-list');
+            ul.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `${todo} <button class="del-btn" onclick="deleteTodo(${index})">X</button>`;
+                ul.appendChild(li);
+            });
+            localStorage.setItem('smart_todos', JSON.stringify(todos));
+        }
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            if(input.value.trim() !== '') {
+                todos.push(input.value.trim());
+                input.value = '';
+                renderTodos();
+            }
+        }
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            renderTodos();
+        }
+        renderTodos();
+
+        // 4. POMODORO TIMER
+        let timer;
+        let timeLeft = 25 * 60;
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert("⏰ Time up! Take a break!");
+                    resetTimer();
+                } else {
+                    timeLeft--;
+                    let mins = Math.floor(timeLeft / 60);
+                    let secs = timeLeft % 60;
+                    document.getElementById('timer-display').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+            }, 1000);
+        }
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 25 * 60;
+            document.getElementById('timer-display').innerText = "25:00";
+        }
+
+        // 5. KIDS MATH QUIZ
+        let num1, num2, correctAns, score = 0;
+        function makeQuiz() {
+            num1 = Math.floor(Math.random() * 10) + 1;
+            num2 = Math.floor(Math.random() * 10) + 1;
+            correctAns = num1 + num2;
+            document.getElementById('quiz-question').innerText = `What is ${num1} + ${num2} ?`;
+        }
+        function checkQuiz() {
+            const ans = parseInt(document.getElementById('quiz-answer').value);
+            if(ans === correctAns) {
+                score++;
+                alert("🎉 Sahi Jawab! Brilliant!");
+            } else {
+                alert(`❌ Galat Jawab! Sahi tha: ${correctAns}`);
+            }
+            document.getElementById('quiz-score').innerText = `Score: ${score}`;
+            document.getElementById('quiz-answer').value = '';
+            makeQuiz();
+        }
+        makeQuiz();
+
+        // 6. DRAWING MAGIC CANVAS
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+        
+        canvas.width = canvas.parentElement.offsetWidth - 40;
+        canvas.height = 140;
+
+        function startPosition(e) { painting = true; draw(e); }
+        function finishedPosition() { painting = false; ctx.beginPath(); }
+        function draw(e) {
+            if(!painting) return;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#0f172a';
+
+            const rect = canvas.getBoundingClientRect();
+            // Supports touch & mouse
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', finishedPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startPosition);
+        canvas.addEventListener('touchend', finishedPosition);
+        canvas.addEventListener('touchmove', draw);
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    </script>
+</body>
+</html>
