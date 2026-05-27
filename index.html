@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignifyPro Enterprise</title>
+  
+  <!-- CSS Stylesheet Connection -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Local JSZip Library for Free Offline Compression -->
+  <script src="jszip.min.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. LEFT SIDEBAR: Branding Controls -->
+    <aside class="sidebar glass">
+      <div class="logo-wrap">
+        <h1>Signify<span>Pro</span></h1>
+        <p>Enterprise Suite</p>
+      </div>
+
+      <div class="control-group">
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" placeholder="e.g. Acme Corp" value="SignifyPro Ltd" />
+      </div>
+
+      <div class="control-group">
+        <label for="brandColor">Brand Theme Color</label>
+        <div class="color-picker-wrapper">
+          <input type="color" id="brandColor" value="#00e5ff" />
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Company Logo</label>
+        <input type="file" id="logoInput" accept="image/*" class="custom-file-input" />
+      </div>
+
+      <div class="control-group">
+        <label>Layout Style</label>
+        <div class="template-selector">
+          <button class="template-btn active" data-template="modern">Modern Professional</button>
+          <button class="template-btn" data-template="minimal">Minimal Clean</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. MAIN WORKSPACE: Central Drag & Drop Zone -->
+    <main class="main-content">
+      <header class="top-bar">
+        <h2>Campaign Dashboard</h2>
+        <button id="generateZipBtn" class="btn-primary" disabled>
+          Generate & Download Bulk Zip (0)
+        </button>
+      </header>
+
+      <div class="workspace-grid">
+        
+        <!-- Upload Box -->
+        <div class="upload-card glass">
+          <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📥</div>
+            <h3>Drag & Drop Staff CSV File Here</h3>
+            <p>or click to browse your local directory</p>
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+          </div>
+          <div id="fileStatus" class="status-message">No file uploaded yet.</div>
+        </div>
+
+        <!-- 3. RIGHT PANEL: Live Interactive Preview -->
+        <div class="preview-card glass">
+          <div class="card-header">
+            <h3>Live Execution Preview</h3>
+            <span class="badge">Real-time Dynamic Render</span>
+          </div>
+          
+          <div class="preview-canvas" id="previewCanvas">
+            <!-- Dynamic HTML Signature templates will load inside this wrapper via JavaScript -->
+            <p class="placeholder-text">Upload a CSV file to preview generated signature output instantly.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Connecting our Application Scripts -->
+  <script src="main.js"></script>
+  <script src="parser.js"></script>
+</body>
+</html>
